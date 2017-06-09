@@ -28,21 +28,23 @@ export class PrismicService {
   }
 
   validateOnboarding() {
-    const repoEndpoint = CONFIG.apiEndpoint.replace('/api', '');
+    const infos = this.getRepositoryInfos();
     const headers = new Headers({ 'Content-Type': 'application/json' });
 
-    this.http.post(`${repoEndpoint}/app/settings/onboarding/run`, null, headers)
-    .subscribe(
-      null,
-      (err) => console.log(`Cannot access your repository, check your api endpoint: ${err}`)
-    );
+    if(infos.isConfigured) {
+      this.http.post(`${infos.repoURL}/app/settings/onboarding/run`, null, headers)
+      .subscribe(
+        null,
+        (err) => console.log(`Cannot access your repository, check your api endpoint: ${err}`)
+      );
+    }
   }
 
   getRepositoryInfos() {
     const repoRegexp = /^(https?:\/\/([-\w]+)\.[a-z]+\.(io|dev))\/api(\/v2)?$/;
-    const [_, url, name] = CONFIG.apiEndpoint.match(repoRegexp);
+    const [_, repoURL, name] = CONFIG.apiEndpoint.match(repoRegexp);
     const isConfigured = name !== 'your-repo-name';
-    return { url, name, isConfigured };
+    return { repoURL, name, isConfigured };
   }
 
   toolbar(api) {
